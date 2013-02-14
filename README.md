@@ -20,7 +20,8 @@ USAGE: >predict_depth.sh <file_in> <file_out_prefix> <produce_pdf> <show>
 
      <show>:            Default = 10: Integer, number of taxa to show in pdf
 
-EXAMPLES: predict_depth.sh test_data.txt 
+EXAMPLES: 
+          predict_depth.sh test_data.txt 
 
           predict_depth.sh test_data.txt "depth_prediction" TRUE 20
 
