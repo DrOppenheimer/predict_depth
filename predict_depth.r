@@ -35,7 +35,7 @@ predict_depth <- function(abundance_matrix, input_type = "object", file_out_pref
 
 # generate tab delimited output
   file_out <- gsub(" ", "", paste(file_out_prefix, ".txt"))
-  write.table(my_coverage_matrix, file = "my_depth_prediction.txt", col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
+  write.table(my_coverage_matrix, file = file_out, col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
   
 # generate a figure 
   if (create_figure == TRUE){
