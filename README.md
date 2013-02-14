@@ -6,7 +6,7 @@ Clone into ~
 
 DESCRIPTION: Shell wrapper for predict_depth.r
 
-USAGE: >predict_depth.sh <file_in> <file_out_prefix> <produce_pdf> <show>
+USAGE: \>predict_depth.sh \<file_in\>  \<file_out_prefix\>  \<produce_pdf\>  \<show\>
 
      <file_in>:         NO DEFAULT: string, name of the input file
                         (two column, tab delimited, annotations then abundances
