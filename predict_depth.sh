@@ -44,7 +44,7 @@ show=$4
 
 echo "# shell generated script to run predict_depth.r" > shell.predict_depth.r.$time_stamp.r
 
-echo "source(\"~/bin/predict_depth.r\")" >> shell.predict_depth.r.$time_stamp.r       
+echo "source(\"~/predict_depth/predict_depth.r\")" >> shell.predict_depth.r.$time_stamp.r       
 
 echo "predict_depth(abundance_matrix=\"$file_in\", input_type=\"file\", file_out_prefix = \"$file_out_prefix\", create_figure=$produce_pdf, num_to_show=$show)" >>  shell.predict_depth.r.$time_stamp.r
 
