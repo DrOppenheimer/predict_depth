@@ -51,8 +51,8 @@ predict_depth <- function(abundance_matrix,
   
 # generate a figure 
   if (create_figure == TRUE){
-    image_out <- gsub(" ", "", paste(file_out_prefix, ".pdf"))
-    pdf(file=image_out, width = 10, height = 5)
+    image_out <- gsub(" ", "", paste(file_out_prefix, ".jpg"))
+    jpeg(filename=image_out, width = 960, height = 480)
     par(mar=c(15,5,1,5))
     barplot( as.numeric(sorted_matrix[1:num_to_show,1]), las=2, axisnames=(1:10), names.arg = dimnames(my_coverage_matrix)[[1]][1:num_to_show], ylab="" ) # mar=c(1,1,1,50))
     mtext("Taxon Abundance", side=2, line=4 )
