@@ -1,8 +1,10 @@
 process_LCA_counts<- function(
                               abundance_matrix,
+                              include_ambiguous_counts = FALSE,
                               input_type = c("object","file"),
                               tax_level = c("domain", "phylum", "class", "order","family", "genus", "species"),
                               output_type = c("r.matrix", "file"),
+                              ambig_count_file = FALSE,
                               debug = TRUE
                               )
 {
@@ -10,11 +12,22 @@ process_LCA_counts<- function(
   # Print usage if no args are supplied
   if (nargs() == 0){ print_usage() }
   
+  # supply default values if needed
+  if(length(input_type)==2){
+    input_type <- "file"
+  }
+
+  if(length(tax_level)==7){
+    tax_level <- "genus"
+  }
+
+  if(length(output_type)==2){
+    output_type <- "r.matrix"
+  }
+  
   # load packages
   require(hash)
 
-  if(debug==TRUE){print(paste("abundance_matrix: ", abundance_matrix))}
-  
   # name file out
   file_out <- gsub(" ", "", paste(abundance_matrix, ".LCA_processed_counts"))
  
@@ -27,92 +40,103 @@ process_LCA_counts<- function(
 
   # load the data into a matrix
   if (input_type=="file"){
-    my_data.matrix <<- data.matrix(read.table(abundance_matrix, row.names=1, check.names=FALSE, header=TRUE, sep="\t", comment.char="", quote=""))
+    my_data.matrix <- data.matrix(read.table(abundance_matrix, row.names=1, check.names=FALSE, header=TRUE, sep="\t", comment.char="", quote=""))
   }else{
-    my_data.matrix <<- data.matrix(abundance_matrix)
+    my_data.matrix <- data.matrix(abundance_matrix)
   }
 
   num_taxa_start <- dim(my_data.matrix)[[1]]
-  if(debug==TRUE){print(paste("Num start: ", num_taxa_start))}
+  #if(debug==TRUE){print(paste("Num start: ", num_taxa_start))}
   
   num_samples <-  dim(my_data.matrix)[[2]]
-  tax_hash <<- hash()
-
-  #num_taxa_end <- length(grep("_", my_data.matrix[,tax_index]))
-
-  #if(debug==TRUE){print(paste("Num end:   ", num_taxa_end))}
-  
-  #output.matrix <- matrix(NA, num_taxa.end, num_samples)
+  tax_hash <- hash() # hash to fold counts that are defined (have numerical value) at the selected level
+  tax_hash.ambig <- hash() # hash to contain values that are ambiguous  ("-") at the selected level
   
   for (j in 1:num_taxa_start){
 
-    if(debug==TRUE){print("HELLO.1")}
-    if(debug==TRUE){print(paste("j: ", j))}
-    # replace taxa string with string that ends at selected level - new tax string is used as hash key to combine counts
+    # get annotation string and counts
     line_annotation.character <- dimnames(my_data.matrix)[[1]][j]
-    ###if(debug==TRUE){print(paste("OG annotation: ", line_annotation.character))}
-
-    line_annotation.list <<-  strsplit(line_annotation.character,";")
-
-    #if(debug==TRUE){ print(paste("- check", grep( "-",line_annotation.list[[1]][tax_index] ))) }
-    if(debug==TRUE){ print(paste("annotation entry [",tax_index,"] :", line_annotation.list[[1]][tax_index] )) }
-    ###if(debug==TRUE){print("GOT HERE")}
-
+    line_annotation.list <-  strsplit(line_annotation.character,";")
+    line_counts.numeric <- as.numeric(my_data.matrix[j,])
+    
     if ( identical( line_annotation.list[[1]][tax_index], "-") ){
-
-      if(debug==TRUE){print("HELLO.1-5")}
-    # drop line if counts at selected level are "_" -- i.e. are not defined
-    # if you want to propegate counts down - this is where you'd start  
-    }else{
-
-      if(debug==TRUE){print("HELLO.2")}
-      # get the counts for the current taxa(line)
-      #line_counts.character <<- as.character(my_data.matrix[j,])
-      line_counts.numeric <- as.numeric(my_data.matrix[j,])
-      if(debug==TRUE){print(paste("Line counts: ", line_counts.numeric))}
+    # process counts that are not defined at the selected level
       
+      # create annotation string - is also used as the key for the counts
+      for (m in 1:length(line_annotation.list[[1]])){
+        if (m==1){
+          if ( identical( line_annotation.list[[1]][m], "-") ){
+          }else{
+            line_annotation_ambig.character <- line_annotation.list[[1]][m]
+          }     
+        }else{
+          if ( identical( line_annotation.list[[1]][m], "-") ){
+          }else{
+            line_annotation_ambig.character <- gsub(" ", "",paste(line_annotation_ambig.character, line_annotation.list[[1]][m], sep=";"))
+          }
+        }
+      }
+
+      # add counts to the hash for ambiguous counts
+      if ( has.key(line_annotation_ambig.character, tax_hash.ambig)==TRUE ){
+        tax_hash.ambig[ line_annotation_ambig.character ] <- tax_hash.ambig[[ line_annotation_ambig.character ]] + line_counts.numeric
+      }else{
+        tax_hash.ambig[ line_annotation_ambig.character ] <- line_counts.numeric
+      }    
+      
+    }else{
+    # process counts that are defined at the selected level
+
+      # create annotation string - is also used as the key for the counts
       for (l in 1:tax_index){
-
-
-        if(debug==TRUE){print("HELLO.3")}
         if (l==1){
-
-          if(debug==TRUE){print("HELLO.4")}
           line_annotation_new.character <- line_annotation.list[[1]][l]
         }else{
-
-          if(debug==TRUE){print("HELLO.5")}
           line_annotation_new.character <- gsub(" ", "",paste(line_annotation_new.character, line_annotation.list[[1]][l], sep=";"))
         }
-
       }
-      
-      if (debug==TRUE){print(paste("line_annotation_list         : ", line_annotation.list))}
         
-    # hash values lower order values into selected higher level order
-
-      if (debug==TRUE){print(paste("line_annotation_new.character: ",line_annotation_new.character))}
-      
+      # hash values lower order values into selected higher level order
       if ( has.key(line_annotation_new.character, tax_hash)==TRUE ){
-
-        if(debug==TRUE){print("HELLO.6")}
-        tax_hash[ line_annotation_new.character ] <<- tax_hash[[ line_annotation_new.character ]] + line_counts.numeric
+        tax_hash[ line_annotation_new.character ] <- tax_hash[[ line_annotation_new.character ]] + line_counts.numeric
       }else{
+        tax_hash[ line_annotation_new.character ] <- line_counts.numeric
+      }
+      
+    }
+    
+  }
+  
+  # add ambiguous counts if that option is selected
+  # note that the ambiguous counts are added to all taxa
+  # that are a substring match (staring from beginning of strings)
 
-        if(debug==TRUE){print("HELLO.7")}
-        tax_hash[ line_annotation_new.character ] <<- line_counts.numeric
+  if( include_ambiguous_counts==TRUE ){
+    #if(debug==TRUE){print("HELLO.2")}
+
+    for (n in 1: length(keys(tax_hash.ambig)) ){
+      ambig_key <<- keys(tax_hash.ambig)[n]
+
+      for (o in 1:length(keys(tax_hash)) ){
+        #if(debug==TRUE){print("HELLO.4")}
+        tax_key <<- keys(tax_hash)[o]
+
+        if( grepl(ambig_key,tax_key, fixed=TRUE)==TRUE ){
+          tax_hash[ tax_key ] <- tax_hash[[ tax_key ]] + tax_hash.ambig[[ ambig_key ]]
+        }
+        
       }
 
-      if(debug==TRUE){print("HELLO.8")}
-      
     }
 
   }
+
+  if(debug){ tax_keys <<- keys(tax_hash); ambig_keys <<- keys(tax_hash.ambig)  }
   
-  if(debug==TRUE){print("HELLO.9")}
+
   # place data in matrix for easy writing
-  num_taxa <<- length(keys(tax_hash))
-  output.matrix <<- matrix(0, num_taxa, num_samples)
+  num_taxa <- length(keys(tax_hash))
+  output.matrix <- matrix(0, num_taxa, num_samples)
   
   dimnames(output.matrix)[[2]] <- dimnames(my_data.matrix)[[2]]
   dimnames(output.matrix)[[1]] <- c(rep("",length(keys(tax_hash))))
@@ -128,73 +152,27 @@ process_LCA_counts<- function(
     write.table(output.matrix, file = file_out, col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
   }
 
-  #}
+  # print file that has the ambiguous counts, if option is selected
+  if( ambig_count_file==TRUE ){
 
+    num_taxa.ambig <- length(keys(tax_hash.ambig))
+    output.matrix.ambig <- matrix(0, num_taxa.ambig, num_samples)
+  
+    dimnames(output.matrix.ambig)[[2]] <- dimnames(my_data.matrix)[[2]]
+    dimnames(output.matrix.ambig)[[1]] <- c(rep("",length(keys(tax_hash.ambig))))
+  
+  for (z in 1:length(keys(tax_hash.ambig))){
+    dimnames(output.matrix.ambig)[[1]][z] <- keys(tax_hash.ambig)[z]
+    output.matrix.ambig[z,] <- tax_hash.ambig[[ keys(tax_hash.ambig)[z] ]]
+  }
+
+    write.table(output.matrix.ambig, file = paste(file_out,".ambig", sep=""), col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
+
+  }
+
+ 
 }
     
-
-    
-    ## for (k in 1:length(keys(my_hash))){
-    ##   print(paste("key  : ",keys(my_hash)[k]))
-    ##   print(paste("value: ",my_hash[[ keys(my_hash)[k] ]]))
-    ## }
-
-    ## # This works
-    ## for (k in 1:length(keys(my_hash))){
-    ##   print(paste("key  : ",keys(my_hash)[k]))
-    ##   print(paste("value: ",my_hash[[ keys(my_hash)[k] ]]))
-    ## }
-
-    
-##     writeLines(  )
-    
-##  keys(my_hash)
-    
-
-##         tax_hash[  ]
-    
-## sum(as.numeric(my_test[1:2]))
-
-##   }
-    
-##   }
-
-## my_hash[ test ] <- (my_hash[[ test ]] + 3)
-
-## my_hash[ test ] <- 3
-  
-
-## has.key signature(key = "ANY", hash = "hash"): Test for existence of key
-
-  
-## value , <-  my_hash[[key]]
-  
-## Examples
-## h <- hash( keys=letters, values=1:26 )
-## h <- hash( letters, 1:26 )
-## h$a # 1
-## h$foo <- "bar"
-## h[ "foo" ]
-## h[[ "foo" ]]
-## clear(h)
-## rm(h)
-
-  
-  
-  
-  
-## # convert tax level to int
-## if ( ! identical(class(tax_level), "numeric" ){
-  
-
-
-## }
-
-
-   
-# Check to see if abundance_matrix is a file - if so, load it - if not, assume it is an R object and copy it
- 
-
 
    print_usage <- function() {
   writeLines(
@@ -206,12 +184,28 @@ process_LCA_counts<- function(
 
   USAGE:
   process_LCA_counts(abundance_matrix,
-                              input_type = c(\"object\",\"file\"),
-                              tax_level = c(\"domain\", \"phylum\", \"class\", \"order\",\"family\", \"species\"),
-                              output_type = c(\"r.matrix\", \"file\")
+                              input_type = c(\"object\",\"file\"),   # default = file
+                              include_ambiguous_counts = TRUE|FALSE, # default = FALSE
+                              tax_level = c(\"domain\", \"phylum\", \"class\", \"order\",\"family\", \"species\"), # default=\"genus\"
+                              output_type = c(\"r.matrix\", \"file\") #default = \"r.matrix\",
+                              ambig_count_file = TRUE|FALSE, # default = FALSE
+                              debug = TRUE|FALSE # default = FALSE
 
   NOTES:
+  This script can process a table of LCA or Best hit counts to generate counts
+  needed for predict_depth.  Counts are merged in one of two ways, LCA counts
+  at higher level are either left out ( include_ambiguous_counts = FALSE ) or
+  included ( include_ambiguous_counts = FALSE ).  If they are included, counts
+  higher order counts are added to each lower order that has them as a subtring.
+  As an example:
 
+  If genus is the select level, counts from the following two higher order LCAs: 
+
+       order;family;genus
+
+       domain;phylum;class;order;family
+
+  Would be added to each genus they match.
   ------------------------------------------------------------------------------"
              )
   stop("you did not enter the correct args -- see above")
