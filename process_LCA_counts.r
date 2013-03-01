@@ -199,13 +199,25 @@ process_LCA_counts<- function(
   higher order counts are added to each lower order that has them as a subtring.
   As an example:
 
-  If genus is the select level, counts from the following two higher order LCAs: 
+  If genus is the selected level, counts from the following two higher order LCAs: 
 
        order;family;genus
 
        domain;phylum;class;order;family
 
   Would be added to each genus they match.
+
+  *** When would you use one version of merging the counts over the other? ***
+
+  If you are interested in a specific organism - you would only want to consider
+  the counts that can be unambiguously associated with it, and would choose:
+  include_ambiguous_counts = FALSE
+
+  If you are interested in exploring a range of closely related organisms, you
+  would want to consider all counts that can (unambiguously or ambiguously)
+  associated with it, and would choose:
+  include_ambiguous_counts = TRUE
+
   ------------------------------------------------------------------------------"
              )
   stop("you did not enter the correct args -- see above")
