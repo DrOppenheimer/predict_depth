@@ -1,15 +1,27 @@
-predict_depth <- function(abundance_matrix, input_type = "object", file_out_prefix = "depth_prediction", genome_size=5000000, coverage=100, num_to_show=10, create_figure=TRUE){
+predict_depth <- function(abundance_matrix,
+                          col_num=1,
+                          input_type = "object",
+                          file_out_prefix = "depth_prediction",
+                          genome_size=4000000,
+                          coverage=100,
+                          num_to_show=10,
+                          create_figure=FALSE){
 
 # Print usage if
    if (nargs() == 0){print_usage()}
 
 # Check to see if abundance_matrix is a file - if so, load it - if not, assume it is an R object and copy it
    if (input_type=="file"){
-     my_data.matrix <- data.matrix(read.table(abundance_matrix, row.names=1, check.names=FALSE, header=TRUE, sep="\t", comment.char="", quote=""))
+     temp.matrix <<- data.matrix(read.table(abundance_matrix, row.names=1, check.names=FALSE, header=TRUE, sep="\t", comment.char="", quote=""))
    }else{
      # my_data.matrix <- my_data$count
-     my_data.matrix <- abundance_matrix
+     temp.matrix <<- abundance_matrix
    }
+
+   my_data.matrix <<- as.matrix(temp.matrix[,col_num])
+   dimnames(my_data.matrix)[[2]] <- list(dimnames(temp.matrix)[[2]][col_num])
+
+   if( dim(my_data.matrix)[1] < num_to_show ){ num_to_show <- dim(my_data.matrix)[1]} # don't try to show more than there are
    
 # get names
   row_names <- dimnames(my_data.matrix)[1]
@@ -20,12 +32,12 @@ predict_depth <- function(abundance_matrix, input_type = "object", file_out_pref
 
 # create index sorted matrix # this preserves the row names, but not columns
   sorted_matrix <- as.matrix(my_data.matrix[my_data.index,])
-  dimnames(sorted_matrix)[2] <- col_names
+  dimnames(sorted_matrix)[[2]] <- col_names
   
 # create matrix to hold calcualted depths
   my_coverage_matrix <- matrix("",dim(sorted_matrix)[1],2)
   dimnames(my_coverage_matrix)[[1]] <- dimnames(sorted_matrix)[[1]] # label rows
-  dimnames(my_coverage_matrix)[[2]] <- c("16s abundance","WGS depth to assemble (bp)") # label columns
+  dimnames(my_coverage_matrix)[[2]] <- c(paste("mgm (",dimnames(my_data.matrix)[[2]][1],") 16s abundance"),paste("WGS needed for",coverage, "X's coverage")) # label columns
   my_coverage_matrix[,1] <- sorted_matrix[,1] # place abundance in first column
 
 # calculate sequencing depth for each taxon
@@ -66,7 +78,14 @@ print_usage <- function() {
   coverage based on relative organism abundance determined from 16s data. 
 
   USAGE:
-  predict_depth <- function(abundance_matrix, input_type = c(\"file\", \"object\"), file_out_prefix= \"depth_prediction\", genome_size=5000000, coverage=100, num_to_show=10, create_figure=TRUE)
+  predict_depth(abundance_matrix,
+  col_num=1 # can be index or text value for the header of the column
+  input_type = c(\"file\", \"object\"), # default = \"object\"
+  file_out_prefix= \"depth_prediction\",
+  genome_size=5000000,
+  coverage=100,
+  num_to_show=10,
+  create_figure=TRUE)
 
 
   NOTES:
@@ -74,15 +93,17 @@ print_usage <- function() {
   abundance_matrix : can be a file or R matrix - specify file or it will treat like R matrix
   an output tab delimited text is always created, a pdf is output is optional.
   Calculation is performed on all taxa - but only shows as many as specified by
-  num_to_show.
+  num_to_show. 
 
   Two most commone ways to use this script would be like this for an R object:
        predict_depth(my_data.matrix)
   or like this for a tab delimited file as input
        predict_depth(\"test_data.txt\", input_type=\"file\")
 
-  In either case, input is a two column matrix, first with taxa names, second
-  with their abundances.
+  In either case, input is a matrix, first column with taxa names, remaining
+  with abundance profiles for some number of metagenomes.
+
+  Program only processes the selected column from the input matrix
   ------------------------------------------------------------------------------"
              )
   stop("you did not enter the correct args -- see above")

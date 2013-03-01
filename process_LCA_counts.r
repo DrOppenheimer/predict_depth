@@ -22,7 +22,7 @@ process_LCA_counts<- function(
   }
 
   if(length(output_type)==2){
-    output_type <- "r.matrix"
+    output_type <- "file"
   }
   
   # load packages

@@ -29,9 +29,8 @@ EXAMPLES:  process_LCA_counts.sh LCA_test_data.txt
 NOTES: Annoying -- to change argument 2, you have to supply 1 and 2 etc.
 There are additional arguments in the function file (process_LCA_counts.r)
 
-***                                                                      ***
 *** When would you use one version of merging the counts over the other? ***
-*** (behavior defined by include_ambiguous_counts)                       ***
+  (behavior defined by include_ambiguous_counts)
 
   If you are interested in a specific organism - you would only want to consider
   the counts that can be unambiguously associated with it, and would choose:
