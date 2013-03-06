@@ -6,7 +6,7 @@ if [ $# -eq 0 -o $# -gt 7 ]
 then
     echo "DESCRIPTION: Shell wrapper for predict_depth.r"
     echo 
-    echo "USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <produce_pdf> <show>"
+    echo "USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <scale_by_unannotated> <produce_pdf> <show>"
     echo   
     
     echo "     <file_in>:         NO DEFAULT; string, name of the input file" 
@@ -32,6 +32,11 @@ then
     echo "     <coverage>:        DEFAULT = 30; Desired level of coverage"
     echo
 
+    echo
+    echo "     <scale_by_unannotated>:   DEFAULT = TRUE; scale calculated depth including unannotated reads"
+    echo
+
+
 
     echo
     echo "     <produce_pdf>:     DEFAULT = FALSE;   TRUE|FALSE, produce a pdf visulization of the output"
@@ -42,7 +47,7 @@ then
     echo
     
     echo "EXAMPLES: predict_depth.sh test_data.txt "
-    echo "          predict_depth.sh test_data.txt 1 my_output 3000000 100 TRUE 20"
+    echo "          predict_depth.sh test_data.txt 1 my_output 3000000 100 TRUE TRUE 20"
     echo
     echo "NOTES: Annoying -- to change argument 2, you have to supply 1 and 2 etc."
     echo "There are additional arguments in the function file (predict_depth.r)"
@@ -58,24 +63,24 @@ col_num=$2
 file_out_prefix=$3
 genom_size=$4
 coverage=$5
-produce_pdf=$6
-show=$7
+scale_by_unannotated=$6
+produce_pdf=$7
+show=$8
 
 # set default values
 : ${col_num:=1}
 : ${file_out_prefix:="depth_prediction"}
 : ${genome_size:=4000000}
 : ${coverage:=30}
-: ${produce_pdf:=1}
+: ${scale_by_unannotated:=0}
+: ${produce_pdf:=0}
 : ${show:=10}
-
-
 
 echo "# shell generated script to run predict_depth.r" > shell.predict_depth.r.$time_stamp.r
 
 echo "source(\"~/predict_depth/predict_depth.r\")" >> shell.predict_depth.r.$time_stamp.r       
 
-echo "predict_depth(abundance_matrix=\"$file_in\", col_num=$col_num, input_type=\"file\", file_out_prefix = \"$file_out_prefix\", genome_size=$genome_size, coverage=$coverage, num_to_show=$show, create_figure=$produce_pdf)" >>  shell.predict_depth.r.$time_stamp.r
+echo "predict_depth(abundance_matrix=\"$file_in\", col_num=$col_num, input_type=\"file\", file_out_prefix = \"$file_out_prefix\", genome_size=$genome_size, coverage=$coverage, scale_by_unannotated=$scale_by_unannotated, create_figure=$produce_pdf, num_to_show=$show)" >>  shell.predict_depth.r.$time_stamp.r
 
 R --vanilla --slave <  shell.predict_depth.r.$time_stamp.r
 rm  shell.predict_depth.r.$time_stamp.r

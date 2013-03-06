@@ -4,9 +4,18 @@ predict_depth <- function(abundance_matrix,
                           file_out_prefix = "depth_prediction",
                           genome_size=4000000,
                           coverage=100,
+                          scale_by_unannotated = TRUE,
                           num_to_show=10,
-                          create_figure=FALSE){
+                          create_figure=FALSE,
+                          debug=FALSE
+                          ){
 
+
+# load required packages
+ # if( scale_by_unannotated == TRUE ){
+ #   require(RJSONIO, RCurl)
+ # }
+  
 # Print usage if
    if (nargs() == 0){print_usage()}
 
@@ -33,6 +42,7 @@ predict_depth <- function(abundance_matrix,
 # create index sorted matrix # this preserves the row names, but not columns
   sorted_matrix <- as.matrix(my_data.matrix[my_data.index,])
   dimnames(sorted_matrix)[[2]] <- col_names
+  if( debug==TRUE ){ print(paste("col_names: ", col_names, sep = "*", "test")) } 
   
 # create matrix to hold calcualted depths
   my_coverage_matrix <- matrix("",dim(sorted_matrix)[1],2)
@@ -40,10 +50,43 @@ predict_depth <- function(abundance_matrix,
   dimnames(my_coverage_matrix)[[2]] <- c(paste("mgm (",dimnames(my_data.matrix)[[2]][1],") 16s abundance"),paste("WGS needed for",coverage, "X's coverage")) # label columns
   my_coverage_matrix[,1] <- sorted_matrix[,1] # place abundance in first column
 
-# calculate sequencing depth for each taxon
-  for (i in 1:dim(sorted_matrix)[1]){
-    my_coverage_matrix[i,2] <- round( ( genome_size * coverage ) / ( sorted_matrix[i,1] / sum(sorted_matrix[,1]) ) )
+# if selected, use the ratio of unannotated reads from the metagenome to adjust calculated values 
+  if( scale_by_unannotated == TRUE ){
+
+    require(RJSONIO)
+    require(RCurl)
+    
+    if ( grepl("^mgm", col_names)==TRUE ){ # remove "mgm" from id if it's there
+      mgid <- gsub(as.character("mgm", "", col_names))
+    }else{
+      mgid <- as.character(col_names)
+    }
+    
+    
+    # First - curl the necessary data from the API,
+    sequence_stats.call <-  paste("http://api.metagenomics.anl.gov/metagenome_statistics/", mgid, sep="")
+    sequence_stats.json <<- fromJSON(getURL(sequence_stats.call))
+
+    num_reads_raw <<- as.integer(sequence_stats.json['sequence_count_raw'])
+    num_reads_annotated <<- as.integer(sequence_stats.json['read_count_annotated'])
+    num_reads_not_annotated <<- ( num_reads_raw - num_reads_annotated )
+
+    if(debug==TRUE){ print(paste("num_reads_annotated: ", num_reads_annotated, " :: sum(sorted_matrix[,1]",sum(sorted_matrix[,1]), sep="")) }
+    
+    for (i in 1:dim(sorted_matrix)[1]){
+      my_coverage_matrix[i,2] <- round( ( genome_size * coverage ) / ( sorted_matrix[i,1] / ( sum(sorted_matrix[,1]) + num_reads_not_annotated ) ) )
+    }
+    
+  }else{ # calculate just based on annotated
+    # calculate sequencing depth for each taxon
+    for (i in 1:dim(sorted_matrix)[1]){
+      my_coverage_matrix[i,2] <- round( ( genome_size * coverage ) / ( sorted_matrix[i,1] / sum(sorted_matrix[,1]) ) )
+    }
+    
   }
+
+
+  
 
 # generate tab delimited output
   file_out <- gsub(" ", "", paste(file_out_prefix, ".txt"))
