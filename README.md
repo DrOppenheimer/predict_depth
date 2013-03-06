@@ -46,7 +46,7 @@ There are additional arguments in the function file (process_LCA_counts.r)
 (predict_depth.sh)
 DESCRIPTION: Shell wrapper for predict_depth.r
 
-USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <produce_pdf> <show>
+USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <scale_by_unannotated> <produce_pdf> <show>
 
      <file_in>:         NO DEFAULT; string, name of the input file
                         (two column, tab delimited, annotations then abundances
@@ -64,6 +64,9 @@ USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <co
 
 
      <coverage>:        DEFAULT = 30; Desired level of coverage
+     
+     
+     <scale_by_unannotated>:   DEFAULT = TRUE; scale calculated depth including unannotated reads
 
 
      <produce_pdf>:     DEFAULT = FALSE;   TRUE|FALSE, produce a pdf visulization of the output
@@ -72,7 +75,7 @@ USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <co
      <show>:            DEFAULT = 10; Integer, number of taxa to show in pdf
 
 EXAMPLES: predict_depth.sh test_data.txt 
-          predict_depth.sh test_data.txt 1 my_output 3000000 100 TRUE 20
+          predict_depth.sh test_data.txt 1 my_output 3000000 100 TRUE TRUE 20
 
 NOTES: Annoying -- to change argument 2, you have to supply 1 and 2 etc.
 There are additional arguments in the function file (predict_depth.r)
