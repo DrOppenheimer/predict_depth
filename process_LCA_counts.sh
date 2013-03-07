@@ -1,8 +1,8 @@
 #!/bin/sh
 
 #written 3-1-13
-#if [ $# -eq 0 || $# -gt 3 ] # usage for no or more than 3 arguments                                                                                 
-if [ $# -eq 0 -o $# -gt 3 ]
+#if [ $# -eq 0 || $# -gt 4 ] # usage for no or more than 3 arguments                                                                                 
+if [ $# -eq 0 -o $# -gt 4 ]
 then
     echo "DESCRIPTION: Shell wrapper for process_LCA_counts.r"
     echo 
@@ -24,7 +24,7 @@ then
     echo
 
     echo
-    echo "     <relative_abundance>  DEFAULT = TRUE; logical, produce relative abundance output in addition to raw abundance outout"
+    echo "     <relative_abundance>  DEFAULT = TRUE; logical, produce relative abundance output in addition to raw abundance output"
     echo
     
     echo "EXAMPLES:  process_LCA_counts.sh LCA_test_data.txt"
