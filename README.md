@@ -10,7 +10,7 @@ DESCRIPTION: r code and shell wrappers for Wizard tools
 (process_LCA_counts.sh)
 DESCRIPTION: Shell wrapper for process_LCA_counts.r
 
-USAGE: > process_LCA_counts.sh <file_in> <include_ambiguous_counts> <tax_level>
+USAGE: > process_LCA_counts.sh <file_in> <include_ambiguous_counts> <tax_level> <relative_abundance>
 
      <file_in>:         NO DEFAULT; string, name of the input file
                         (two column, tab delimited, annotations then abundances
@@ -19,9 +19,11 @@ USAGE: > process_LCA_counts.sh <file_in> <include_ambiguous_counts> <tax_level>
 
      <include_ambiguous_counts>: DEFAULT = FALSE;
 
-
      <tax_level>:       DEFAULT = "genus" ;string, tax level, one from the following:
                         "domain", "phylum", "class", "order","family", "genus", "species"
+
+     <relative_abundance>  DEFAULT = TRUE; logical, produce relative abundance output in addition to raw abundance output
+
 
 EXAMPLES:  process_LCA_counts.sh LCA_test_data.txt
            process_LCA_counts.sh LCA_test_data.txt TRUE order
