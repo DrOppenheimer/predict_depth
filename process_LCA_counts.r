@@ -4,8 +4,9 @@ process_LCA_counts<- function(
                               input_type = c("object","file"),
                               tax_level = c("domain", "phylum", "class", "order","family", "genus", "species"),
                               output_type = c("r.matrix", "file"),
+                              relative_abundance = TRUE,
                               ambig_count_file = FALSE,
-                              debug = TRUE
+                              debug = FALSE
                               )
 {
 
@@ -24,7 +25,7 @@ process_LCA_counts<- function(
   if(length(output_type)==2){
     output_type <- "file"
   }
-  
+
   # load packages
   require(hash)
 
@@ -131,7 +132,7 @@ process_LCA_counts<- function(
 
   }
 
-  if(debug){ tax_keys <<- keys(tax_hash); ambig_keys <<- keys(tax_hash.ambig)  }
+  #if(debug){ tax_keys <<- keys(tax_hash); ambig_keys <<- keys(tax_hash.ambig)  }
   
 
   # place data in matrix for easy writing
@@ -145,13 +146,43 @@ process_LCA_counts<- function(
     dimnames(output.matrix)[[1]][k] <- keys(tax_hash)[k]
     output.matrix[k,] <- tax_hash[[ keys(tax_hash)[k] ]]
   }
-  
+
   if ( output_type=="r.matrix"){
     return(output.matrix)
   }else{
     write.table(output.matrix, file = file_out, col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
   }
 
+  # print a file that contains the relative abundances (for each metagenome), if the option is selection
+  if( relative_abundance==TRUE ){
+    
+    relative.output.matrix <- matrix(0, num_taxa, num_samples)
+    dimnames(relative.output.matrix)[[2]] <- dimnames(my_data.matrix)[[2]]
+    dimnames(relative.output.matrix)[[1]] <- c(rep("",length(keys(tax_hash))))
+
+    for (k in 1:length(keys(tax_hash))){
+      dimnames(output.matrix)[[1]][k] <- keys(tax_hash)[k]
+      output.matrix[k,] <- tax_hash[[ keys(tax_hash)[k] ]]
+    }
+    
+    for( my_col in 1:dim(output.matrix)[2] ) {
+      for( my_row in 1:dim(output.matrix)[1] ) {    
+        relative.output.matrix[my_row,my_col] = ((( output.matrix[my_row,my_col] - min(output.matrix[,my_col]))*(1))/(max(output.matrix[,my_col]) - min(output.matrix[,my_col])))
+        
+        #NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+        #Or a little more readable:
+        #OldRange = (OldMax - OldMin)  
+        #NewRange = (NewMax - NewMin)  
+        #NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
+        
+      }
+    }
+    
+    write.table(relative.output.matrix, file =  (paste(file_out,".scaled",sep="")), col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
+    
+  }
+
+  
   # print file that has the ambiguous counts, if option is selected
   if( ambig_count_file==TRUE ){
 
