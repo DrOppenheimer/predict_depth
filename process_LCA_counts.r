@@ -181,7 +181,6 @@ process_LCA_counts<- function(
     write.table(relative.output.matrix, file =  (paste(file_out,".scaled",sep="")), col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
     
   }
-
   
   # print file that has the ambiguous counts, if option is selected
   if( ambig_count_file==TRUE ){
