@@ -155,18 +155,19 @@ process_LCA_counts<- function(
 
   # print a file that contains the relative abundances (for each metagenome), if the option is selection
   if( relative_abundance==TRUE ){
-    
+
     relative.output.matrix <- matrix(0, num_taxa, num_samples)
     dimnames(relative.output.matrix)[[2]] <- dimnames(my_data.matrix)[[2]]
     dimnames(relative.output.matrix)[[1]] <- c(rep("",length(keys(tax_hash))))
 
-    for (k in 1:length(keys(tax_hash))){
-      dimnames(output.matrix)[[1]][k] <- keys(tax_hash)[k]
-      output.matrix[k,] <- tax_hash[[ keys(tax_hash)[k] ]]
+    for (l in 1:length(keys(tax_hash))){
+       
+      dimnames(relative.output.matrix)[[1]][l] <- keys(tax_hash)[l]
+      #relative.output.matrix[l,] <- tax_hash[[ keys(tax_hash)[l] ]]
     }
     
-    for( my_col in 1:dim(output.matrix)[2] ) {
-      for( my_row in 1:dim(output.matrix)[1] ) {    
+    for( my_col in 1:dim(relative.output.matrix)[2] ) {
+      for( my_row in 1:dim(relative.output.matrix)[1] ) {    
         relative.output.matrix[my_row,my_col] = ((( output.matrix[my_row,my_col] - min(output.matrix[,my_col]))*(1))/(max(output.matrix[,my_col]) - min(output.matrix[,my_col])))
         
         #NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
