@@ -57,29 +57,32 @@ USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <co
 
      <col_num>:         DEFAULT = 1; 1 based index of column to process from file_in
 
-
      <file_out_prefix>: DEFAULT = "depth_prediction"  ;string, prefix for output file(s)
                         *.txt (& *.pdf if produce_fig = 1)
 
-
      <genome_size>:     DEFAULT = 4000000; size in bp of genomes
-
 
      <coverage>:        DEFAULT = 30; Desired level of coverage
      
-     
      <scale_by_unannotated>:   DEFAULT = TRUE; scale calculated depth including unannotated reads
 
+     <read_length>:     DEFAULT = 125; average read length in bp
+
+     <min_overlap>      DEFAULT = 30; min overlap for assembly
 
      <produce_pdf>:     DEFAULT = FALSE;   TRUE|FALSE, produce a pdf visulization of the output
-
 
      <show>:            DEFAULT = 10; Integer, number of taxa to show in pdf
 
 EXAMPLES: predict_depth.sh test_data.txt 
-          predict_depth.sh test_data.txt 1 my_output 3000000 100 TRUE TRUE 20
+          predict_depth.sh test_data.txt 1 my_output 4000000 25 125 30 TRUE TRUE 10
 
 NOTES: Annoying -- to change argument 2, you have to supply 1 and 2 etc.
 There are additional arguments in the function file (predict_depth.r)
+
+Prediction values use calculations defined in the following:
+
+    Lander, E. S. and Waterman, M. S., "Genomic mapping by fingerprinting
+    random clones: a mathematical analysis", Genomics 2, 231-239 (1988).
 
 ------------------------------------------------------------------------------------------------------------
