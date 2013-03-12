@@ -10,7 +10,7 @@ DESCRIPTION: r code and shell wrappers for Wizard tools
 (process_LCA_counts.sh)
 DESCRIPTION: Shell wrapper for process_LCA_counts.r
 
-USAGE: > process_LCA_counts.sh <file_in> <include_ambiguous_counts> <tax_level>
+USAGE: > process_LCA_counts.sh <file_in> <include_ambiguous_counts> <tax_level> <relative_abundance>
 
      <file_in>:         NO DEFAULT; string, name of the input file
                         (two column, tab delimited, annotations then abundances
@@ -19,9 +19,11 @@ USAGE: > process_LCA_counts.sh <file_in> <include_ambiguous_counts> <tax_level>
 
      <include_ambiguous_counts>: DEFAULT = FALSE;
 
-
      <tax_level>:       DEFAULT = "genus" ;string, tax level, one from the following:
                         "domain", "phylum", "class", "order","family", "genus", "species"
+
+     <relative_abundance>  DEFAULT = TRUE; logical, produce relative abundance output in addition to raw abundance output
+
 
 EXAMPLES:  process_LCA_counts.sh LCA_test_data.txt
            process_LCA_counts.sh LCA_test_data.txt TRUE order
@@ -29,8 +31,9 @@ EXAMPLES:  process_LCA_counts.sh LCA_test_data.txt
 NOTES: Annoying -- to change argument 2, you have to supply 1 and 2 etc.
 There are additional arguments in the function file (process_LCA_counts.r)
 
+***                                                                      ***
 *** When would you use one version of merging the counts over the other? ***
-  (behavior defined by include_ambiguous_counts)
+*** (behavior defined by include_ambiguous_counts)                       ***
 
   If you are interested in a specific organism - you would only want to consider
   the counts that can be unambiguously associated with it, and would choose:
@@ -45,7 +48,7 @@ There are additional arguments in the function file (process_LCA_counts.r)
 (predict_depth.sh)
 DESCRIPTION: Shell wrapper for predict_depth.r
 
-USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <produce_pdf> <show>
+USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <scale_by_unannotated> <produce_pdf> <show>
 
      <file_in>:         NO DEFAULT; string, name of the input file
                         (two column, tab delimited, annotations then abundances
@@ -63,6 +66,9 @@ USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <co
 
 
      <coverage>:        DEFAULT = 30; Desired level of coverage
+     
+     
+     <scale_by_unannotated>:   DEFAULT = TRUE; scale calculated depth including unannotated reads
 
 
      <produce_pdf>:     DEFAULT = FALSE;   TRUE|FALSE, produce a pdf visulization of the output
@@ -71,7 +77,7 @@ USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <co
      <show>:            DEFAULT = 10; Integer, number of taxa to show in pdf
 
 EXAMPLES: predict_depth.sh test_data.txt 
-          predict_depth.sh test_data.txt 1 my_output 3000000 100 TRUE 20
+          predict_depth.sh test_data.txt 1 my_output 3000000 100 TRUE TRUE 20
 
 NOTES: Annoying -- to change argument 2, you have to supply 1 and 2 etc.
 There are additional arguments in the function file (predict_depth.r)

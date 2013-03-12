@@ -6,7 +6,7 @@ if [ $# -eq 0 -o $# -gt 10 ]
 then
     echo "DESCRIPTION: Shell wrapper for predict_depth.r"
     echo 
-    echo "USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <scale_by_unannotated> <read_length> <min_overlap> <produce_pdf> <show>"
+    echo "USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <scale_by_unannotated> <read_length> <min_overlap> <produce_pdf> <show>"
     echo   
     
     echo "     <file_in>:         NO DEFAULT; string, name of the input file" 
@@ -24,9 +24,6 @@ then
    
     echo 
     echo "     <genome_size>:     DEFAULT = 4000000; size in bp of genomes" 
-
-    echo
-    echo "     <coverage>:        DEFAULT = 30; Desired level of coverage"
 
     echo
     echo "     <scale_by_unannotated>:   DEFAULT = TRUE; scale calculated depth including unannotated reads"
@@ -67,12 +64,11 @@ file_in=$1
 col_num=$2
 file_out_prefix=$3
 genom_size=$4
-coverage=$5
-scale_by_unannotated=$6
-read_length=$7
-min_overlap=$8
-produce_pdf=$9
-show=${10}
+scale_by_unannotated=$5
+read_length=$6
+min_overlap=$7
+produce_pdf=$8
+show=${9}
 
 # set default values
 : ${col_num:=1}
@@ -85,13 +81,11 @@ show=${10}
 : ${produce_pdf:=0}
 : ${show:=10}
 
-echo "SHOW $show"
-
 echo "# shell generated script to run predict_depth.r" > shell.predict_depth.r.$time_stamp.r
 
 echo "source(\"~/predict_depth/predict_depth.watstats.r\")" >> shell.predict_depth.r.$time_stamp.r       
 
-echo "predict_depth.watstats(abundance_matrix=\"$file_in\", col_num=$col_num, input_type=\"file\", file_out_prefix = \"$file_out_prefix\", genome_size=$genome_size, coverage=$coverage, read_length=$read_length, min_overlap=$min_overlap, scale_by_unannotated=$scale_by_unannotated, create_figure=$produce_pdf, num_to_show=$show)" >>  shell.predict_depth.r.$time_stamp.r
+echo "predict_depth.watstats(abundance_matrix=\"$file_in\", col_num=$col_num, input_type=\"file\", file_out_prefix = \"$file_out_prefix\", genome_size=$genome_size, read_length=$read_length, min_overlap=$min_overlap, scale_by_unannotated=$scale_by_unannotated, create_figure=$produce_pdf, num_to_show=$show)" >>  shell.predict_depth.r.$time_stamp.r
 
 R --vanilla --slave <  shell.predict_depth.r.$time_stamp.r
 rm  shell.predict_depth.r.$time_stamp.r
