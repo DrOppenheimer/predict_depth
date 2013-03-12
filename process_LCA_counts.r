@@ -57,55 +57,60 @@ process_LCA_counts<- function(
 
     # get annotation string and counts
     line_annotation.character <- dimnames(my_data.matrix)[[1]][j]
-    line_annotation.list <-  strsplit(line_annotation.character,";")
-    line_counts.numeric <- as.numeric(my_data.matrix[j,])
-    
-    if ( identical( line_annotation.list[[1]][tax_index], "-") ){
-    # process counts that are not defined at the selected level
+
+    if ( grepl("^Bacteria", line_annotation.character) == TRUE ){ # Only process Domain Bacteria
       
-      # create annotation string - is also used as the key for the counts
-      for (m in 1:length(line_annotation.list[[1]])){
-        if (m==1){
-          if ( identical( line_annotation.list[[1]][m], "-") ){
+      line_annotation.list <-  strsplit(line_annotation.character,";")
+      line_counts.numeric <- as.numeric(my_data.matrix[j,])
+      
+      if ( identical( line_annotation.list[[1]][tax_index], "-") ){
+      # process counts that are not defined at the selected level
+      
+        # create annotation string - is also used as the key for the counts
+        for (m in 1:length(line_annotation.list[[1]])){
+          if (m==1){
+            if ( identical( line_annotation.list[[1]][m], "-") ){
+            }else{
+              line_annotation_ambig.character <- line_annotation.list[[1]][m]
+            }     
           }else{
-            line_annotation_ambig.character <- line_annotation.list[[1]][m]
-          }     
-        }else{
-          if ( identical( line_annotation.list[[1]][m], "-") ){
-          }else{
-            line_annotation_ambig.character <- gsub(" ", "",paste(line_annotation_ambig.character, line_annotation.list[[1]][m], sep=";"))
+            if ( identical( line_annotation.list[[1]][m], "-") ){
+            }else{
+              line_annotation_ambig.character <- gsub(" ", "",paste(line_annotation_ambig.character, line_annotation.list[[1]][m], sep=";"))
+            }
           }
         }
-      }
 
-      # add counts to the hash for ambiguous counts
-      if ( has.key(line_annotation_ambig.character, tax_hash.ambig)==TRUE ){
-        tax_hash.ambig[ line_annotation_ambig.character ] <- tax_hash.ambig[[ line_annotation_ambig.character ]] + line_counts.numeric
-      }else{
-        tax_hash.ambig[ line_annotation_ambig.character ] <- line_counts.numeric
-      }    
-      
-    }else{
-    # process counts that are defined at the selected level
-
-      # create annotation string - is also used as the key for the counts
-      for (l in 1:tax_index){
-        if (l==1){
-          line_annotation_new.character <- line_annotation.list[[1]][l]
+        # add counts to the hash for ambiguous counts
+        if ( has.key(line_annotation_ambig.character, tax_hash.ambig)==TRUE ){
+          tax_hash.ambig[ line_annotation_ambig.character ] <- tax_hash.ambig[[ line_annotation_ambig.character ]] + line_counts.numeric
         }else{
-          line_annotation_new.character <- gsub(" ", "",paste(line_annotation_new.character, line_annotation.list[[1]][l], sep=";"))
-        }
-      }
+          tax_hash.ambig[ line_annotation_ambig.character ] <- line_counts.numeric
+        }    
         
-      # hash values lower order values into selected higher level order
-      if ( has.key(line_annotation_new.character, tax_hash)==TRUE ){
-        tax_hash[ line_annotation_new.character ] <- tax_hash[[ line_annotation_new.character ]] + line_counts.numeric
       }else{
-        tax_hash[ line_annotation_new.character ] <- line_counts.numeric
+      # process counts that are defined at the selected level
+
+        # create annotation string - is also used as the key for the counts
+        for (l in 1:tax_index){
+          if (l==1){
+            line_annotation_new.character <- line_annotation.list[[1]][l]
+          }else{
+            line_annotation_new.character <- gsub(" ", "",paste(line_annotation_new.character, line_annotation.list[[1]][l], sep=";"))
+          }
+        }
+        
+        # hash values lower order values into selected higher level order
+        if ( has.key(line_annotation_new.character, tax_hash)==TRUE ){
+          tax_hash[ line_annotation_new.character ] <- tax_hash[[ line_annotation_new.character ]] + line_counts.numeric
+        }else{
+          tax_hash[ line_annotation_new.character ] <- line_counts.numeric
+        }
+        
       }
       
     }
-    
+
   }
   
   # add ambiguous counts if that option is selected
@@ -168,7 +173,7 @@ process_LCA_counts<- function(
     
     for( my_col in 1:dim(relative.output.matrix)[2] ) {
       for( my_row in 1:dim(relative.output.matrix)[1] ) {    
-        relative.output.matrix[my_row,my_col] = ((( output.matrix[my_row,my_col] - min(output.matrix[,my_col]))*(1))/(max(output.matrix[,my_col]) - min(output.matrix[,my_col])))
+        relative.output.matrix[my_row,my_col] = ((( output.matrix[my_row,my_col] - min(output.matrix[,my_col]))*(100))/(max(output.matrix[,my_col]) - min(output.matrix[,my_col])))
         
         #NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
         #Or a little more readable:

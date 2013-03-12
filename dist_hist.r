@@ -1,4 +1,4 @@
-dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_dists_path = "./DISTs", debug = TRUE){
+dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_dists_path = "./DISTs", write_tables=TRUE, debug = FALSE){
 
 # dist_hist <- function(distance_matrix_file, file_path = "./", groups_list = "groups", perm_dists_path = "./DISTs", debug = 0){ 
 
@@ -8,12 +8,16 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
 # This sub is the hear of the script  
   process_dist <- function(dist_matrix, groups) {
 
+   # create some file names for output
+   # real_table = paste(original_matrix_file, ".real_counts", sep="")
+   # perm_table = paste(original_matrix_file, ".perm_counts_acg", sep="")
+    
   # read in the groups
-    groups_in <<- readLines(groups_list)
-    num_groups <<- dim(data.frame(groups_in))[1]
+    groups_in <- readLines(groups_list)
+    num_groups <- dim(data.frame(groups_in))[1]
   
   # read in the dists
-    distance_matrix <<- data.matrix(read.table(dist_matrix, row.names=1, header=TRUE, check.names=FALSE, sep="\t", comment.char="", quote=""))
+    distance_matrix <- data.matrix(read.table(dist_matrix, row.names=1, header=TRUE, check.names=FALSE, sep="\t", comment.char="", quote=""))
 
   # initialize arrays to hold the distances for each unique pair of samples -- within and between group in separate arrays
     within_group_distances <- matrix()
@@ -22,9 +26,23 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
     for (i in 1:num_groups){
      
       group_samples <- strsplit(groups_in[i], ",")
+      if(debug==TRUE){print(paste("group_samples: ", group_samples))}
       num_samples <- dim(data.frame(group_samples))[1]
+      num_pairs <- dim(combn(num_samples,2))[2]
+      if(debug==TRUE){print(paste("num_pairs: ",num_pairs))}
+      if(debug==TRUE){print(paste("num_samples: ",num_samples))}
     #group_distances <<- matrix (NA, size(combn(num_samples,2))[2], 1) #####
-      group_distances <<- matrix (NA, dim(combn(num_samples,2))[2], 1) #####
+      #group_distances <<- matrix (NA, dim(combn(num_samples,2))[2], 1) #####
+      group_distances <- matrix (NA, num_pairs, 1)
+      
+      
+      #dimnames(group_distances)[[1]] <- c(rep("", dim(group_distances)[[1]]))
+
+      if(debug==TRUE){print(paste("dim(group_distances)[[1]] : ",dim(group_distances)[[1]]))}
+      dimnames(group_distances)[[1]] <- c(rep("",num_pairs))
+      
+      #dimnames(group_distances)[[1]] <- c(rep("", dim(group_distances)[[1]]))####<---
+      
       gd_index <- 1 
     
       for (m in 2:num_samples){ # get all of the unique non-redundant pairs
@@ -42,7 +60,11 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
             }
           
           #if (debug==TRUE){ print(paste("gd_index =", gd_index, "distance:", distance_matrix[ noquote(group_samples[[1]][m]), noquote(group_samples[[1]][n]) ] )) } #####
-          group_distances[gd_index,1] <<- distance_matrix[ noquote(group_samples[[1]][m]), noquote(group_samples[[1]][n]) ] #####
+          group_distances[gd_index,1] <- distance_matrix[ noquote(group_samples[[1]][m]), noquote(group_samples[[1]][n]) ] #####
+          #if(debug==TRUE){print(paste("group_samples[[1]][n] :", group_samples[[1]][n]))}
+          #if(debug==TRUE){print(paste("group_samples[[1]][m] :", group_samples[[1]][m]))}
+          #if(debug==TRUE){print(paste("gd_index: ",gd_index))}
+          dimnames(group_distances)[[1]][gd_index] <- paste(group_samples[[1]][n], "::", group_samples[[1]][m])
           gd_index <- gd_index + 1
           
         }
@@ -54,6 +76,8 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
       }else{
         within_group_distances <- rbind(within_group_distances, group_distances)
       }
+
+      #return(group_distances)
       
     }
     
@@ -71,7 +95,11 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
         num_beta_samples <- dim(data.frame(beta_samples))[1]
                                         #beta_distances <- matrix(NA, size(combn(num_beta_samples,2))[2], 1) ### ###
         
-        alpha_beta_distances <<- matrix(NA, (num_alpha_samples*num_beta_samples), 1) # alpha and beta should be the same size
+        alpha_beta_distances <- matrix(NA, (num_alpha_samples*num_beta_samples), 1) # alpha and beta should be the same size
+        dimnames(alpha_beta_distances)[[1]] <- c(rep("",num_alpha_samples*num_beta_samples)) #<--
+
+
+
         dist_index <- 1 ### ###
         
                                         #write(gsub(" ", "", (paste(">>Group(", p, ")::Group(", q, ")"))), file=output_file, append=TRUE)
@@ -79,7 +107,8 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
         for (na in 1:num_alpha_samples){
           for (nb in 1:num_beta_samples){
             
-            alpha_beta_distances[dist_index,1] <<- distance_matrix[ noquote(alpha_samples[[1]][na]), noquote(beta_samples[[1]][nb]) ] ### ###
+            alpha_beta_distances[dist_index,1] <- distance_matrix[ noquote(alpha_samples[[1]][na]), noquote(beta_samples[[1]][nb]) ] ### ###
+            dimnames(alpha_beta_distances)[[1]][dist_index] <- paste(alpha_samples[[1]][na], "::", beta_samples[[1]][nb]) #<--
             dist_index <- dist_index + 1 ### ###
             
           }
@@ -87,7 +116,7 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
         
       }
       
-      if( p == 1 ){
+      if( (p-1) == 1 ){
         between_group_distances <- alpha_beta_distances
       }else{
         between_group_distances <- rbind(between_group_distances, alpha_beta_distances)
@@ -122,7 +151,7 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
   
 
 # First, deal with the original file
-  distances_list_real <- process_dist(dist_matrix=original_matrix_file, groups=groups_list )
+  distances_list_real <<- process_dist(dist_matrix=original_matrix_file, groups=groups_list )
   
 # now deal with the permutations
 
@@ -192,19 +221,28 @@ dist_hist <- function(original_matrix_file, groups_list = "EHFI_groups", perm_di
                          )
 
   
-  plot(x = within_group_real.hist$breaks, y = c(within_group_real.hist$counts, 0), ylab="frequency", xlab="dist", type="l", lty=3, col=legend_colors[1], xlim=c(0,x_max), ylim=c(0,y_max))
+  plot(x = within_group_real.hist$breaks, y = c(within_group_real.hist$counts, 0), ylab="frequency", xlab="dist", type="l", lty=3, col=legend_colors[1], xlim=c(0,x_max), ylim=c(0,y_max), main="Distance comparison (real vs averaged perm)")
   lines(x = between_group_real.hist$breaks, y = c(between_group_real.hist$counts, 0), ylab="frequency", xlab="dist", type="l", col=legend_colors[2])
   lines(x = within_group_perm.hist$breaks, y = c(within_group_perm.hist$counts, 0), ylab="frequency", xlab="dist", type="l", lty=3, col=legend_colors[3])
   lines(x = between_group_perm.hist$breaks, y = c(between_group_perm.hist$counts, 0), ylab="frequency", xlab="dist", type="l", col=legend_colors[4])
 
-
-  # Set parameters for the output graph
+  legend("topleft", legend = legend_text, pch=19, lty=c(3,1), col = legend_colors)
   
   
   
     
-
-  legend("topleft", legend = legend_text, pch=19, lty=c(3,1), col = legend_colors)
+  if(write_tables == TRUE ){
+    real_table = paste(original_matrix_file, ".real_counts", sep="")
+    perm_table = paste(original_matrix_file, ".perm_counts_acg", sep="")
+    write.table(rbind(distances_list_real$within, distances_list_real$between), file = real_table, col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
+    #write.table(rbind(within_group_perm.hist$counts, between_group_perm.hist$counts), file = perm_table, col.names=NA, row.names = TRUE, sep="\t", quote=FALSE)
+    if(debug==TRUE){print(paste("within:  ",within_group_real.hist$counts))}
+    if(debug==TRUE){print(paste("class(within_group_real.hist$counts):  ",class(within_group_real.hist$counts)))}
+    if(debug==TRUE){print(paste("between: ",between_group_real.hist$counts))}
+    
+    
+  }
+  
   #legend("topleft", legend = legend_text, pch=19, lty=c(3,1), col = c("blue", "blue", "red", "red"))
   
   

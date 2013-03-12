@@ -1,0 +1,10 @@
+Length of genome            G = 4e+06000 bp
+Number of sequences         N = 2e+05
+Average length of sequences L = 125 bp
+Minimum overlap             T = 30 bp
+
+Redundancy of coverage                   =  0.0
+Expected number of contigs               = 199052.3
+The expected number of seqs in a contig  =  1.0
+The expected length of each contig       = 125
+Percentage of coverage of genome         = 0%
