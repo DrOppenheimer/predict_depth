@@ -221,7 +221,7 @@ watstats <- function (
                       )
   {
 
-     taxa_num_reads = ( num_reads * ( percent_data/100 ) ) # 
+     taxa_num_reads = ( num_reads * ( percent_data/100 ) ) # determine number of reads that are of taxa i 
      
      alpha    <- ( taxa_num_reads/genome_length ) # $alpha=$N/$GM; # $GM = $G*1000; (input in original was in KB)
      theta    <- ( min_overlap/read_length )      # $theta=$T/$L;
