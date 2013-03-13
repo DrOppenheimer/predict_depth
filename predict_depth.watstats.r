@@ -1,5 +1,6 @@
 predict_depth.watstats <- function(abundance_matrix,
                           col_num=1,
+                          num_reads = 1000000,
                           input_type = "object",
                           file_out_prefix = "depth_prediction",
                           genome_size=4000000,
@@ -93,7 +94,8 @@ predict_depth.watstats <- function(abundance_matrix,
       if(debug==TRUE){print(paste("sample_name:",dimnames(my_coverage_matrix[[1]][i]) ))}
       
       my_watstats <- watstats(
-                              num_reads = sum(sorted_matrix[,1]),
+                              # num_reads = sum(sorted_matrix[,1]),
+                              num_reads = num_reads,
                               percent_data = percent_reads,
                               genome_length = genome_size,
                               read_length = read_length,
@@ -120,7 +122,8 @@ predict_depth.watstats <- function(abundance_matrix,
 
       # Get the watstats for the current taxa
       my_watstats <- watstats(
-                              num_reads = sum(sorted_matrix[,1]),
+                              #num_reads = sum(sorted_matrix[,1]),
+                              num_reads = num_reads,                              
                               percent_data = percent_reads,
                               genome_length = genome_size,
                               read_length = read_length,
