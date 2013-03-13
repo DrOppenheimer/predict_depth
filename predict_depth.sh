@@ -18,7 +18,7 @@ then
     echo "     <col_num>:         DEFAULT = 1; 1 based index of column to process from file_in"
 
     echo
-    echo "     <num_reads>        DEFAULT = 1000000; estimated number of reads in wgs sequencing run
+    echo "     <num_reads>        DEFAULT = 1000000; estimated number of reads in wgs sequencing run"
 
 
     echo
