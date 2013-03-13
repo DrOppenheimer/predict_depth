@@ -77,7 +77,7 @@ USAGE: >predict_depth.sh <file_in> <col_num> <num_reads> <file_out_prefix> <geno
      <show>:            DEFAULT = 10; Integer, number of taxa to show in pdf
 
 EXAMPLES: predict_depth.sh test_data.txt 
-          predict_depth.sh test_data.txt 1 my_output 4000000 25 125 30 TRUE TRUE 10
+          predict_depth.sh test_data.txt 1 1000000 my_output 4000000 25 125 30 TRUE TRUE 10
 
 NOTES: Annoying -- to change argument 2, you have to supply 1 and 2 etc.
 There are additional arguments in the function file (predict_depth.r)
