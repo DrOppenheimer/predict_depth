@@ -63,9 +63,7 @@ USAGE: >predict_depth.sh <file_in> <col_num> <num_reads> <file_out_prefix> <geno
                         *.txt (& *.pdf if produce_fig = 1)
 
      <genome_size>:     DEFAULT = 4000000; size in bp of genomes
-
-     <coverage>:        DEFAULT = 30; Desired level of coverage
-     
+   
      <scale_by_unannotated>:   DEFAULT = TRUE; scale calculated depth including unannotated reads
 
      <read_length>:     DEFAULT = 125; average read length in bp
