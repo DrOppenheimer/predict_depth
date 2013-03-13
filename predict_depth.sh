@@ -20,7 +20,6 @@ then
     echo
     echo "     <num_reads>        DEFAULT = 1000000; estimated number of reads in wgs sequencing run"
 
-
     echo
     echo "     <file_out_prefix>: DEFAULT = \"depth_prediction\"  ;string, prefix for output file(s)" 
     echo "                        *.txt (& *.pdf if produce_fig = 1)"
