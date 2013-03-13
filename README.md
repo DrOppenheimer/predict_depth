@@ -48,7 +48,7 @@ There are additional arguments in the function file (process_LCA_counts.r)
 (predict_depth.sh)
 DESCRIPTION: Shell wrapper for predict_depth.r
 
-USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <coverage> <scale_by_unannotated> <produce_pdf> <show>
+USAGE: >predict_depth.sh <file_in> <col_num> <num_reads> <file_out_prefix> <genome_size> <coverage> <scale_by_unannotated> <produce_pdf> <show>
 
      <file_in>:         NO DEFAULT; string, name of the input file
                         (two column, tab delimited, annotations then abundances
@@ -56,6 +56,8 @@ USAGE: >predict_depth.sh <file_in> <col_num> <file_out_prefix> <genome_size> <co
                         row, scecond column can have a text header)
 
      <col_num>:         DEFAULT = 1; 1 based index of column to process from file_in
+     
+     <num_reads>:       DEFAULT = 1000000; estimated number of reads in wgs sequencing run
 
      <file_out_prefix>: DEFAULT = "depth_prediction"  ;string, prefix for output file(s)
                         *.txt (& *.pdf if produce_fig = 1)
