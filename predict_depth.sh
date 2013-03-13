@@ -78,7 +78,6 @@ show=${10}
 : ${num_reads:=1000000}
 : ${file_out_prefix:="depth_prediction"}
 : ${genome_size:=4000000}
-: ${coverage:=25}
 : ${scale_by_unannotated:=0}
 : ${read_length:=125}
 : ${min_overlap:=30}
