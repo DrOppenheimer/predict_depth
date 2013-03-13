@@ -4,7 +4,7 @@
 #if [ $# -eq 0 || $# -gt 3 ] # usage for no or more than 3 arguments                                                                                 
 if [ $# -eq 0 -o $# -gt 10 ]
 then
-    echo "DESCRIPTION: Shell wrapper for predict_depth.r"
+    echo "DESCRIPTION: Shell wrapper for predict_depth.watstats.r"
     echo 
     echo "USAGE: >predict_depth.sh <file_in> <col_num> <num_reads> <file_out_prefix> <genome_size> <scale_by_unannotated> <read_length> <min_overlap> <produce_pdf> <show>"
     echo   
