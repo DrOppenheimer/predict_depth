@@ -21,7 +21,7 @@ then
     echo "     <num_reads>        DEFAULT = 1000000; estimated number of reads in wgs sequencing run"
 
     echo
-    echo "     <file_out_prefix>: DEFAULT = \"depth_prediction\"  ;string, prefix for output file(s)" 
+    echo "     <file_out_prefix>: DEFAULT = \"depth_prediction.cross\"  ;string, prefix for output file(s)" 
     echo "                        *.txt (& *.pdf if produce_fig = 1)"
    
     echo 
@@ -76,7 +76,7 @@ show=${10}
 # set default values
 : ${col_nums:="1,2"}
 : ${num_reads:=1000000}
-: ${file_out_prefix:="depth_prediction"}
+: ${file_out_prefix:="depth_prediction.cross"}
 : ${genome_size:=4000000}
 : ${scale_by_unannotated:=0}
 : ${read_length:=125}
