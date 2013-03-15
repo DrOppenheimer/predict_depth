@@ -196,7 +196,8 @@ process_LCA_counts<- function(
   
     dimnames(output.matrix.ambig)[[2]] <- dimnames(my_data.matrix)[[2]]
     dimnames(output.matrix.ambig)[[1]] <- c(rep("",length(keys(tax_hash.ambig))))
-  
+
+  # convert the hash to a table  
   for (z in 1:length(keys(tax_hash.ambig))){
     dimnames(output.matrix.ambig)[[1]][z] <- keys(tax_hash.ambig)[z]
     output.matrix.ambig[z,] <- tax_hash.ambig[[ keys(tax_hash.ambig)[z] ]]
